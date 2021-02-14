@@ -1,6 +1,6 @@
 use crate::api;
 use crate::api::ApiResponseError;
-use chrono::{Utc, FixedOffset, NaiveDateTime, TimeZone, DateTime};
+use chrono::NaiveDateTime;
 
 const METHOD : &'static str = "ticker";
 

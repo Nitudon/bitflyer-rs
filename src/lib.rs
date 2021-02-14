@@ -1,4 +1,3 @@
-extern crate clap;
 extern crate reqwest;
 extern crate serde;
 extern crate serde_json;
@@ -13,6 +12,3 @@ extern crate serde_derive;
 extern crate hyper;
 
 pub mod api;
-
-use clap::{App, Arg, SubCommand};
-use api::*;

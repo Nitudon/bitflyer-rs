@@ -10,9 +10,7 @@ extern crate hyper;
 
 use reqwest::{Url, RequestBuilder};
 use hyper::header::{HeaderMap, CONTENT_TYPE};
-use crate::api::get_markets::MarketInfo;
 use std::str::FromStr;
-use std::num::ParseIntError;
 
 const ENDPOINT : &'static str = "https://api.bitflyer.com/v1/";
 
