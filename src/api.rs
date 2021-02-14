@@ -87,8 +87,8 @@ impl From<url::ParseError> for ApiResponseError {
     }
 }
 
-pub async fn get<JSON: serde::de::DeserializeOwned>
-(endpoint: &str) -> Result<JSON, reqwest::Error> {
+pub async fn get<T: serde::de::DeserializeOwned>
+(endpoint: &str) -> Result<T, reqwest::Error> {
     let url_str = http_url(endpoint).unwrap();
     reqwest::get(url_str)
         .await?
@@ -96,8 +96,8 @@ pub async fn get<JSON: serde::de::DeserializeOwned>
         .await
 }
 
-pub async fn post<T: serde::Serialize, JSON: serde::de::DeserializeOwned>
-(endpoint: &str, body: &T) -> Result<JSON, reqwest::Error> {
+pub async fn post<T: serde::Serialize, U: serde::de::DeserializeOwned>
+(endpoint: &str, body: &T) -> Result<U, reqwest::Error> {
     let url_str = http_url(endpoint).unwrap();
     reqwest::Client::new()
         .post(url_str)
@@ -108,7 +108,7 @@ pub async fn post<T: serde::Serialize, JSON: serde::de::DeserializeOwned>
         .await
 }
 
-fn post_request<T: serde::Serialize, JSON: serde::de::DeserializeOwned>
+fn post_request<T: serde::Serialize, U: serde::de::DeserializeOwned>
 (method: &str, body: &T) -> RequestBuilder {
     let url_str = http_url(method).unwrap();
     reqwest::Client::new()
