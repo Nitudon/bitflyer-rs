@@ -1,6 +1,7 @@
 use crate::api;
-use crate::api::ApiResponseError;
+use crate::api::{ApiResponseError, ProductCode, PRODUCT_CODE_QUERY_KEY};
 use chrono::NaiveDateTime;
+use std::collections::HashMap;
 
 const METHOD : &'static str = "ticker";
 
@@ -40,7 +41,9 @@ pub struct TickerInfo {
     pub volume_by_product: f32
 }
 
-pub async fn get_ticker() -> Result<TickerInfo, ApiResponseError> {
+pub async fn get_ticker(product_code: ProductCode) -> Result<TickerInfo, ApiResponseError> {
+    let mut params = HashMap::new();
+    params.insert(PRODUCT_CODE_QUERY_KEY.to_string(), product_code.to_string());
     let response = api::get::<GetTickerResponse>(&METHOD).await?;
 
     match response {
@@ -65,10 +68,11 @@ pub async fn get_ticker() -> Result<TickerInfo, ApiResponseError> {
 #[cfg(test)]
 mod tests {
     use crate::api::get_ticker::get_ticker;
+    use crate::api::ProductCode;
 
     #[tokio::test]
     async fn get_ticker_test() {
-        let ticker = get_ticker().await;
+        let ticker = get_ticker(ProductCode::BTC_JPY).await;
         assert_eq!(ticker.is_ok(), true)
     }
 }

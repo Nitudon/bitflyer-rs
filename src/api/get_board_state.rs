@@ -1,6 +1,7 @@
 use crate::api;
-use crate::api::{HealthState, BoardState, ApiResponseError};
+use crate::api::{HealthState, BoardState, ApiResponseError, ProductCode, PRODUCT_CODE_QUERY_KEY};
 use std::str::FromStr;
+use std::collections::HashMap;
 
 const METHOD : &'static str = "getboardstate";
 
@@ -23,7 +24,9 @@ pub struct OptionalBoardData {
     pub special_quotation: i32
 }
 
-pub async fn get_board_state() -> Result<BoardStateInfo, ApiResponseError> {
+pub async fn get_board_state(product_code: ProductCode) -> Result<BoardStateInfo, ApiResponseError> {
+    let mut params = HashMap::new();
+    params.insert(PRODUCT_CODE_QUERY_KEY.to_string(), product_code.to_string());
     let response = api::get::<GetBoardStateResponse>(&METHOD).await?;
 
     match response {
@@ -38,10 +41,11 @@ pub async fn get_board_state() -> Result<BoardStateInfo, ApiResponseError> {
 #[cfg(test)]
 mod tests {
     use crate::api::get_board_state::get_board_state;
+    use crate::api::ProductCode;
 
     #[tokio::test]
     async fn get_board_state_test() {
-        let response = get_board_state().await;
+        let response = get_board_state(ProductCode::BTC_JPY).await;
         assert_eq!(response.is_ok(), true)
     }
 }
