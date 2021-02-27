@@ -3,7 +3,7 @@ use crate::api::{ApiResponseError, ProductCode, PRODUCT_CODE_QUERY_KEY};
 use chrono::NaiveDateTime;
 use std::collections::HashMap;
 
-const METHOD : &'static str = "ticker";
+const PATH : &'static str = "/v1/ticker";
 
 #[derive(Deserialize, Debug)]
 #[serde(untagged)]
@@ -44,7 +44,7 @@ pub struct TickerInfo {
 pub async fn get_ticker(product_code: ProductCode) -> Result<TickerInfo, ApiResponseError> {
     let mut params = HashMap::new();
     params.insert(PRODUCT_CODE_QUERY_KEY.to_string(), product_code.to_string());
-    let response = api::get::<GetTickerResponse>(&METHOD).await?;
+    let response = api::get::<GetTickerResponse>(&PATH).await?;
 
     match response {
         GetTickerResponse::Error { errors } => Err(ApiResponseError::API(errors)),

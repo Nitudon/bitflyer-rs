@@ -3,7 +3,7 @@ use crate::api::{HealthState, ApiResponseError, ProductCode, PRODUCT_CODE_QUERY_
 use std::str::FromStr;
 use std::collections::HashMap;
 
-const METHOD : &'static str = "gethealth";
+const PATH : &'static str = "/v1/gethealth";
 
 #[derive(Deserialize, Debug)]
 #[serde(untagged)]
@@ -20,7 +20,7 @@ pub struct StateInfo {
 pub async fn get_health(product_code: ProductCode) -> Result<StateInfo, ApiResponseError> {
     let mut params = HashMap::new();
     params.insert(PRODUCT_CODE_QUERY_KEY.to_string(), product_code.to_string());
-    let response = api::get::<GetHealthResponse>(&METHOD).await?;
+    let response = api::get::<GetHealthResponse>(&PATH).await?;
 
     match response {
         GetHealthResponse::Error { errors } => Err(ApiResponseError::API(errors)),

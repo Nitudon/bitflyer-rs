@@ -5,16 +5,21 @@ pub mod get_executions;
 pub mod get_board_state;
 pub mod get_health;
 pub mod get_chats;
+pub mod get_balance;
 
 extern crate hyper;
 
-use reqwest::{Url, RequestBuilder};
-use hyper::header::{HeaderMap, CONTENT_TYPE};
+use reqwest::Url;
+use hyper::header::{HeaderMap, CONTENT_TYPE, HeaderName};
 use std::str::FromStr;
 use std::collections::HashMap;
 use std::fmt;
 
-const ENDPOINT : &'static str = "https://api.bitflyer.com/v1/";
+use crate::auth::credential::*;
+use hyper::http::HeaderValue;
+use hyper::Method;
+
+const ENDPOINT : &'static str = "https://api.bitflyer.com";
 pub const PRODUCT_CODE_QUERY_KEY : &'static str = "product_code";
 pub const MARKET_TYPE_QUERY_KEY : &'static str = "market_type";
 pub const COUNT_QUERY_KEY : &'static str = "count";
@@ -146,6 +151,12 @@ pub enum ApiResponseError {
     API(Vec<String>),
 }
 
+impl From<Vec<String>> for ApiResponseError {
+    fn from(e: Vec<String>) -> ApiResponseError {
+        ApiResponseError::API(e)
+    }
+}
+
 impl From<reqwest::Error> for ApiResponseError {
     fn from(e: reqwest::Error) -> ApiResponseError {
         ApiResponseError::Reqwest(e)
@@ -159,35 +170,55 @@ impl From<url::ParseError> for ApiResponseError {
 }
 
 pub async fn get_with_params<T: serde::de::DeserializeOwned>
-(endpoint: &str, query_map: &HashMap<String, String>) -> Result<T, reqwest::Error> {
-    let url_str = http_url_with_params(endpoint, query_map).unwrap();
-    get_impl(url_str).await
+(path: &str, query_map: &HashMap<String, String>) -> Result<T, ApiResponseError> {
+    let header = http_header(&Method::GET.to_string(), path, "").unwrap();
+    let url = http_url_with_params(path, query_map)?;
+    let response = get_impl(url, header).await;
+    match response {
+        Ok(t) => Ok(t),
+        Err(e) => Err(ApiResponseError::from(e))
+    }
 }
 
 pub async fn get<T: serde::de::DeserializeOwned>
-(endpoint: &str) -> Result<T, reqwest::Error> {
-    let url_str = http_url(endpoint).unwrap();
-    get_impl(url_str).await
+(path: &str) -> Result<T, ApiResponseError> {
+    let header = http_header(&Method::GET.to_string(), path, "").unwrap();
+    let url = http_url(path)?;
+    let response = get_impl(url, header).await;
+    match response {
+        Ok(t) => Ok(t),
+        Err(e) => Err(ApiResponseError::from(e))
+    }
 }
 
 async fn get_impl<T: serde::de::DeserializeOwned>
-(endpoint: Url) -> Result<T, reqwest::Error> {
-    reqwest::get(endpoint)
+(url: Url, header: HeaderMap) -> Result<T, reqwest::Error> {
+    reqwest::Client::new()
+        .get(url)
+        .headers(header)
+        .send()
         .await?
         .json()
         .await
 }
 
 pub async fn post<T: serde::Serialize, U: serde::de::DeserializeOwned>
-(endpoint: &str, body: &T) -> Result<U, reqwest::Error> {
-    let url_str = http_url(endpoint).unwrap();
-    post_impl(url_str, body).await
+(path: &str, body: &T) -> Result<U, ApiResponseError> {
+    let url = http_url(path)?;
+    let body_json = serde_json::to_string(body).unwrap();
+    let header = http_header(&Method::POST.to_string(), path, &body_json).unwrap();
+    let response = post_impl(url, header, body).await;
+    match response {
+        Ok(t) => Ok(t),
+        Err(e) => Err(ApiResponseError::from(e))
+    }
 }
 
 async fn post_impl<T: serde::Serialize, U: serde::de::DeserializeOwned>
-(endpoint: Url, body: &T) -> Result<U, reqwest::Error> {
+(url: Url, header: HeaderMap, body: &T) -> Result<U, reqwest::Error> {
     reqwest::Client::new()
-        .post(endpoint)
+        .post(url)
+        .headers(header)
         .json(body)
         .send()
         .await?
@@ -195,26 +226,30 @@ async fn post_impl<T: serde::Serialize, U: serde::de::DeserializeOwned>
         .await
 }
 
-fn post_request<T: serde::Serialize, U: serde::de::DeserializeOwned>
-(method: &str, body: &T) -> RequestBuilder {
-    let url_str = http_url(method).unwrap();
-    reqwest::Client::new()
-        .post(url_str)
-        .json(body)
-}
-
-fn http_url_with_params(method: &str, query_map: &HashMap<String, String>) -> Result<Url, url::ParseError> {
-    let url_str = format!("{}{}", ENDPOINT, method);
+fn http_url_with_params(path: &str, query_map: &HashMap<String, String>) -> Result<Url, url::ParseError> {
+    let url_str = format!("{}{}", ENDPOINT, path);
     Url::parse_with_params(&url_str, query_map)
 }
 
-fn http_url(method: &str) -> Result<Url, url::ParseError> {
-    let url_str = format!("{}{}", ENDPOINT, method);
+fn http_url(path: &str) -> Result<Url, url::ParseError> {
+    let url_str = format!("{}{}", ENDPOINT, path);
     Url::parse(&url_str)
 }
 
-fn http_header() -> HeaderMap {
+fn http_header(method: &str, path: &str, body: &str) -> Result<HeaderMap, CredentialError> {
     let mut header = HeaderMap::new();
-    header.insert(CONTENT_TYPE, "application/json".parse().unwrap());
-    header
+    let credential = get_credential(&method.to_string(), &path.to_string(), &body.to_string());
+    if credential.is_err() {
+        return Err(credential.err().unwrap())
+    }
+    
+    let content_type = "application/json".parse();
+    header.insert(CONTENT_TYPE, content_type.unwrap());
+    for (k, v) in credential.unwrap() {
+        let header_name = k.parse::<HeaderName>();
+        let header_value = v.parse::<HeaderValue>();
+        header.insert(header_name.unwrap(), header_value.unwrap());
+    }
+    
+    Ok(header)
 }

@@ -2,7 +2,7 @@ use crate::api;
 use crate::api::{ApiResponseError, ProductCode, PRODUCT_CODE_QUERY_KEY};
 use std::collections::HashMap;
 
-const METHOD : &'static str = "board";
+const PATH : &'static str = "/v1/board";
 
 #[derive(Deserialize, Debug)]
 #[serde(untagged)]
@@ -33,7 +33,7 @@ pub struct BoardAsk {
 pub async fn get_board(product_code: ProductCode) -> Result<BoardInfo, ApiResponseError> {
     let mut params = HashMap::new();
     params.insert(PRODUCT_CODE_QUERY_KEY.to_string(), product_code.to_string());
-    let response = api::get::<GetBoardResponse>(&METHOD).await?;
+    let response = api::get::<GetBoardResponse>(&PATH).await?;
 
     match response {
         GetBoardResponse::Error { errors } => Err(ApiResponseError::API(errors)),
@@ -53,6 +53,7 @@ mod tests {
     #[tokio::test]
     async fn get_board_test() {
         let response = get_board(ProductCode::BTC_JPY).await;
+        println!("{:?}", response);
         assert_eq!(response.is_ok(), true)
     }
 }

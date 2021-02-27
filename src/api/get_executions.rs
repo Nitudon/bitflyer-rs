@@ -2,7 +2,7 @@ use crate::api;
 use crate::api::{ApiResponseError, ProductCode, PRODUCT_CODE_QUERY_KEY, COUNT_QUERY_KEY};
 use std::collections::HashMap;
 
-const METHOD : &'static str = "executions";
+const PATH : &'static str = "/v1/executions";
 
 #[derive(Deserialize, Debug)]
 #[serde(untagged)]
@@ -26,7 +26,7 @@ pub async fn get_executions(product_code: ProductCode, count: i32) -> Result<Vec
     let mut params = HashMap::new();
     params.insert(PRODUCT_CODE_QUERY_KEY.to_string(), product_code.to_string());
     params.insert(COUNT_QUERY_KEY.to_string(), count.to_string());
-    let response = api::get::<GetExecutionsResponse>(&METHOD).await?;
+    let response = api::get::<GetExecutionsResponse>(&PATH).await?;
 
     match response {
         GetExecutionsResponse::Error { errors } => Err(ApiResponseError::API(errors)),

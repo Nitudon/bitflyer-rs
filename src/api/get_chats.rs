@@ -2,7 +2,7 @@ use crate::api;
 use crate::api::ApiResponseError;
 use chrono::NaiveDateTime;
 
-const METHOD : &'static str = "getchats";
+const PATH : &'static str = "/v1/getchats";
 
 #[derive(Deserialize, Debug)]
 #[serde(untagged)]
@@ -19,7 +19,7 @@ pub struct ChatInfo {
 }
 
 pub async fn get_chats() -> Result<Vec<ChatInfo>, ApiResponseError> {
-    let response = api::get::<GetChatsResponse>(&METHOD).await?;
+    let response = api::get::<GetChatsResponse>(&PATH).await?;
 
     match response {
         GetChatsResponse::Error { errors } => Err(ApiResponseError::API(errors)),

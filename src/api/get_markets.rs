@@ -2,7 +2,7 @@ use crate::api;
 use crate::api::{ApiResponseError, MarketType, MARKET_TYPE_QUERY_KEY};
 use std::collections::HashMap;
 
-const METHOD : &'static str = "markets";
+const PATH : &'static str = "/v1/markets";
 
 #[derive(Deserialize, Debug)]
 #[serde(untagged)]
@@ -21,7 +21,7 @@ pub struct MarketInfo {
 pub async fn get_markets(market_type: MarketType) -> Result<Vec<MarketInfo>, ApiResponseError> {
     let mut params = HashMap::new();
     params.insert(MARKET_TYPE_QUERY_KEY.to_string(), market_type.to_string());
-    let response = api::get_with_params::<GetMarketResponse>(&METHOD, &params).await?;
+    let response = api::get_with_params::<GetMarketResponse>(&PATH, &params).await?;
     
     match response {
         GetMarketResponse::Error { errors } => Err(ApiResponseError::API(errors)),
