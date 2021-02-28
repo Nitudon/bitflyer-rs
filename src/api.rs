@@ -7,6 +7,7 @@ pub mod get_health;
 pub mod get_chats;
 pub mod get_permissions;
 pub mod get_balance;
+pub mod get_collateral;
 
 extern crate hyper;
 
@@ -196,14 +197,6 @@ pub async fn get<T: serde::de::DeserializeOwned>
 
 async fn get_impl<T: serde::de::DeserializeOwned>
 (url: Url, header: HeaderMap) -> Result<T, reqwest::Error> {
-    let h = reqwest::Client::new()
-        .get(url.clone())
-        .headers(header.clone())
-        .send()
-        .await?;
-    
-    println!("{:?}", h.text().await?);
-    
     reqwest::Client::new()
         .get(url)
         .headers(header)
