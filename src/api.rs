@@ -8,6 +8,7 @@ pub mod get_chats;
 pub mod get_permissions;
 pub mod get_balance;
 pub mod get_collateral;
+pub mod get_collateral_accounts;
 
 extern crate hyper;
 
@@ -30,6 +31,7 @@ pub const AFTER_QUERY_KEY : &'static str = "after";
 
 #[derive(Deserialize, Debug)]
 pub enum HealthState {
+    Unknown,
     NORMAL,
     BUSY,
     VERYBUSY,
@@ -56,6 +58,7 @@ impl FromStr for HealthState {
 
 #[derive(Deserialize, Debug)]
 pub enum BoardState {
+    Unknown,
     RUNNING,
     CLOSED,
     STARTING,
@@ -84,6 +87,7 @@ impl FromStr for BoardState {
 
 #[derive(Deserialize, Debug)]
 pub enum ProductCode {
+    Unknown,
     BTC_JPY,
     ETH_JPY,
     FX_BTC_JPY,
@@ -99,6 +103,7 @@ impl fmt::Display for ProductCode {
             ProductCode::FX_BTC_JPY => write!(f, "FX_BTC_JPY"),
             ProductCode::ETH_BTC => write!(f, "ETH_BTC"),
             ProductCode::BCH_BTC => write!(f, "BCH_BTC"),
+            _ => write!(f, "Unknown")
         }
     }
 }
@@ -113,6 +118,41 @@ impl FromStr for ProductCode {
             "FX_BTC_JPY" => Ok(ProductCode::FX_BTC_JPY),
             "ETH_BTC" => Ok(ProductCode::ETH_BTC),
             "BCH_BTC" => Ok(ProductCode::BCH_BTC),
+            _ => Err(())
+        }
+    }
+}
+
+#[derive(Deserialize, Debug)]
+pub enum CurrencyCode {
+    Unknown,
+    JPY,
+    BTC,
+    ETH,
+    BCH
+}
+
+impl fmt::Display for CurrencyCode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            CurrencyCode::JPY => write!(f, "JPY"),
+            CurrencyCode::BTC => write!(f, "BTC"),
+            CurrencyCode::ETH => write!(f, "ETH"),
+            CurrencyCode::BCH => write!(f, "BCH"),
+            _ => write!(f, "Unknown")
+        }
+    }
+}
+
+impl FromStr for CurrencyCode {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.trim() {
+            "JPY" => Ok(CurrencyCode::JPY),
+            "BTC" => Ok(CurrencyCode::BTC),
+            "ETH" => Ok(CurrencyCode::ETH),
+            "BCH" => Ok(CurrencyCode::BCH),
             _ => Err(())
         }
     }
