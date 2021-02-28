@@ -3,7 +3,7 @@ use crate::api::{HealthState, BoardState, ApiResponseError, ProductCode, PRODUCT
 use std::str::FromStr;
 use std::collections::HashMap;
 
-const PATH : &'static str = "/vi/getboardstate";
+const PATH : &'static str = "/v1/getboardstate";
 
 #[derive(Deserialize, Debug)]
 #[serde(untagged)]
@@ -27,7 +27,7 @@ pub struct OptionalBoardData {
 pub async fn get_board_state(product_code: ProductCode) -> Result<BoardStateInfo, ApiResponseError> {
     let mut params = HashMap::new();
     params.insert(PRODUCT_CODE_QUERY_KEY.to_string(), product_code.to_string());
-    let response = api::get::<GetBoardStateResponse>(&PATH).await?;
+    let response = api::get_with_params::<GetBoardStateResponse>(&PATH, &params).await?;
 
     match response {
         GetBoardStateResponse::Error { errors } => Err(ApiResponseError::API(errors)),

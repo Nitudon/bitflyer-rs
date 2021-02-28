@@ -19,7 +19,6 @@ pub struct BalanceInfo {
 
 pub async fn get_balance() -> Result<Vec<BalanceInfo>, ApiResponseError> {
     let response = api::get::<GetBalanceResponse>(&PATH).await?;
-    println!("{:?}", response);
 
     match response {
         GetBalanceResponse::Error { errors } => Err(ApiResponseError::API(errors)),
