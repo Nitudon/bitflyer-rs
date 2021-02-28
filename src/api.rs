@@ -5,6 +5,7 @@ pub mod get_executions;
 pub mod get_board_state;
 pub mod get_health;
 pub mod get_chats;
+pub mod get_permissions;
 pub mod get_balance;
 
 extern crate hyper;
@@ -57,9 +58,10 @@ pub enum BoardState {
     RUNNING,
     CLOSED,
     STARTING,
-    PROPEN,
-    NOORDER,
-    STOP
+    PREOPEN,
+    CIRCUITBREAK,
+    AWAITINGSQ,
+    MATURED
 }
 
 impl FromStr for BoardState {
@@ -70,9 +72,10 @@ impl FromStr for BoardState {
             "RUNNING" => Ok(BoardState::RUNNING),
             "CLOSED" => Ok(BoardState::CLOSED),
             "STARTING" => Ok(BoardState::STARTING),
-            "PROPEN" => Ok(BoardState::PROPEN),
-            "NOORDER" => Ok(BoardState::NOORDER),
-            "STOP" => Ok(BoardState::STOP),
+            "PREOPEN" => Ok(BoardState::PREOPEN),
+            "CIRCUITBREAK" => Ok(BoardState::CIRCUITBREAK),
+            "AWAITINGSQ" => Ok(BoardState::AWAITINGSQ),
+            "MATURED" => Ok(BoardState::MATURED),
             _ => Err(())
         }
     }
@@ -90,11 +93,11 @@ pub enum ProductCode {
 impl fmt::Display for ProductCode {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            ProductCode::BTC_JPY => write!(f, "[ProduceCode::BTC_JPY]"),
-            ProductCode::ETH_JPY => write!(f, "[ProduceCode::ETH_JPY]"),
-            ProductCode::FX_BTC_JPY => write!(f, "[ProduceCode::FX_BTC_JPY]"),
-            ProductCode::ETH_BTC => write!(f, "[ProduceCode::ETH_BTC]"),
-            ProductCode::BCH_BTC => write!(f, "[ProduceCode::BCH_BTC]"),
+            ProductCode::BTC_JPY => write!(f, "BTC_JPY"),
+            ProductCode::ETH_JPY => write!(f, "ETH_JPY"),
+            ProductCode::FX_BTC_JPY => write!(f, "FX_BTC_JPY"),
+            ProductCode::ETH_BTC => write!(f, "ETH_BTC"),
+            ProductCode::BCH_BTC => write!(f, "BCH_BTC"),
         }
     }
 }
@@ -124,9 +127,9 @@ pub enum MarketType {
 impl fmt::Display for MarketType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            MarketType::Spot => write!(f, "[MarketType::Spot]"),
-            MarketType::FX => write!(f, "[MarketType::FX]"),
-            MarketType::Futures => write!(f, "[MarketType::Futures]"),
+            MarketType::Spot => write!(f, "Spot"),
+            MarketType::FX => write!(f, "FX"),
+            MarketType::Futures => write!(f, "Futures"),
         }
     }
 }
@@ -193,6 +196,14 @@ pub async fn get<T: serde::de::DeserializeOwned>
 
 async fn get_impl<T: serde::de::DeserializeOwned>
 (url: Url, header: HeaderMap) -> Result<T, reqwest::Error> {
+    let h = reqwest::Client::new()
+        .get(url.clone())
+        .headers(header.clone())
+        .send()
+        .await?;
+    
+    println!("{:?}", h.text().await?);
+    
     reqwest::Client::new()
         .get(url)
         .headers(header)
