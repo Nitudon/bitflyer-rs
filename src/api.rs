@@ -9,6 +9,7 @@ pub mod get_permissions;
 pub mod get_balance;
 pub mod get_collateral;
 pub mod get_collateral_accounts;
+pub mod get_addresses;
 
 extern crate hyper;
 
@@ -183,6 +184,32 @@ impl FromStr for MarketType {
             "Spot" => Ok(MarketType::Spot),
             "FX" => Ok(MarketType::FX),
             "Futures" => Ok(MarketType::Futures),
+            _ => Err(())
+        }
+    }
+}
+
+#[derive(Deserialize, Debug)]
+pub enum AddressType {
+    Unknown,
+    NORMAL,
+}
+
+impl fmt::Display for AddressType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            AddressType::NORMAL => write!(f, "NORMAL"),
+            _ => write!(f, "Unknown"),
+        }
+    }
+}
+
+impl FromStr for AddressType {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.trim() {
+            "NORMAL" => Ok(AddressType::NORMAL),
             _ => Err(())
         }
     }
