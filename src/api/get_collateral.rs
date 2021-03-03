@@ -34,11 +34,11 @@ pub async fn get_collateral() -> Result<CollateralInfo, ApiResponseError> {
 
 #[cfg(test)]
 mod tests {
+    use crate::test_api;
     use crate::api::get_collateral::get_collateral;
 
     #[tokio::test]
     async fn get_collateral_test() {
-        let response = get_collateral().await;
-        assert_eq!(response.is_ok(), true)
+        test_api!(get_collateral());
     }
 }

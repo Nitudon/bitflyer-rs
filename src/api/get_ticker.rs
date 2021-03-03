@@ -67,12 +67,12 @@ pub async fn get_ticker(product_code: ProductCode) -> Result<TickerInfo, ApiResp
 
 #[cfg(test)]
 mod tests {
+    use crate::test_api;
     use crate::api::get_ticker::get_ticker;
     use crate::api::ProductCode;
 
     #[tokio::test]
     async fn get_ticker_test() {
-        let ticker = get_ticker(ProductCode::BTC_JPY).await;
-        assert_eq!(ticker.is_ok(), true)
+        test_api!(get_ticker(ProductCode::BTC_JPY));
     }
 }

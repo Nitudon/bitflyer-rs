@@ -29,11 +29,11 @@ pub async fn get_chats() -> Result<Vec<ChatInfo>, ApiResponseError> {
 
 #[cfg(test)]
 mod tests {
+    use crate::test_api;
     use crate::api::get_chats::get_chats;
 
     #[tokio::test]
     async fn get_chats_test() {
-        let chats = get_chats().await;
-        assert_eq!(chats.is_ok(), true)
+        test_api!(get_chats());
     }
 }

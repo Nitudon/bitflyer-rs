@@ -30,11 +30,11 @@ pub async fn get_addresses() -> Result<Vec<AddressInfo>, ApiResponseError> {
 
 #[cfg(test)]
 mod tests {
+    use crate::test_api;
     use crate::api::get_addresses::get_addresses;
 
     #[tokio::test]
     async fn get_addresses_test() {
-        let response = get_addresses().await;
-        assert_eq!(response.is_ok(), true)
+        test_api!(get_addresses());
     }
 }

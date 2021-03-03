@@ -31,12 +31,12 @@ pub async fn get_markets(market_type: MarketType) -> Result<Vec<MarketInfo>, Api
 
 #[cfg(test)]
 mod tests {
+    use crate::test_api;
     use crate::api::get_markets::get_markets;
     use crate::api::MarketType;
 
     #[tokio::test]
     async fn get_markets_test() {
-        let markets = get_markets(MarketType::Spot).await;
-        assert_eq!(markets.is_ok(), true)
+        test_api!(get_markets(MarketType::Spot));
     }
 }

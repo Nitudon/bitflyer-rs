@@ -28,11 +28,11 @@ pub async fn get_balance() -> Result<Vec<BalanceInfo>, ApiResponseError> {
 
 #[cfg(test)]
 mod tests {
+    use crate::test_api;
     use crate::api::get_balance::get_balance;
 
     #[tokio::test]
     async fn get_balance_test() {
-        let balance = get_balance().await;
-        assert_eq!(balance.is_ok(), true)
+        test_api!(get_balance());
     }
 }

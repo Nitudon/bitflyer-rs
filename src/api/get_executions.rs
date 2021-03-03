@@ -36,12 +36,12 @@ pub async fn get_executions(product_code: ProductCode, count: i32) -> Result<Vec
 
 #[cfg(test)]
 mod tests {
+    use crate::test_api;
     use crate::api::get_executions::get_executions;
     use crate::api::ProductCode;
 
     #[tokio::test]
     async fn get_executions_test() {
-        let response = get_executions(ProductCode::BTC_JPY, 10).await;
-        assert_eq!(response.is_ok(), true)
+        test_api!(get_executions(ProductCode::BTC_JPY, 10));
     }
 }

@@ -15,5 +15,6 @@ extern crate hyper;
 #[macro_use]
 extern crate async_trait;
 
+#[macro_use]
 pub mod api;
 pub mod auth;

@@ -29,11 +29,11 @@ pub async fn get_collateral_accounts() -> Result<Vec<CollateralAccountInfo>, Api
 
 #[cfg(test)]
 mod tests {
+    use crate::test_api;
     use crate::api::get_collateral_accounts::get_collateral_accounts;
 
     #[tokio::test]
     async fn get_collateral_accounts_test() {
-        let response = get_collateral_accounts().await;
-        assert_eq!(response.is_ok(), true)
+        test_api!(get_collateral_accounts());
     }
 }

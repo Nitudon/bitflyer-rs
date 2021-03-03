@@ -47,13 +47,12 @@ pub async fn get_board(product_code: ProductCode) -> Result<BoardInfo, ApiRespon
 
 #[cfg(test)]
 mod tests {
+    use crate::test_api;
     use crate::api::get_board::get_board;
     use crate::api::ProductCode;
 
     #[tokio::test]
     async fn get_board_test() {
-        let response = get_board(ProductCode::BTC_JPY).await;
-        println!("{:?}", response);
-        assert_eq!(response.is_ok(), true)
+        test_api!(get_board(ProductCode::BTC_JPY));
     }
 }

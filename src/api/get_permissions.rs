@@ -21,11 +21,11 @@ pub async fn get_permissions() -> Result<Vec<String>, ApiResponseError> {
 
 #[cfg(test)]
 mod tests {
+    use crate::test_api;
     use crate::api::get_permissions::get_permissions;
 
     #[tokio::test]
     async fn get_permissions_test() {
-        let balance = get_permissions().await;
-        assert_eq!(balance.is_ok(), true)
+        test_api!(get_permissions());
     }
 }

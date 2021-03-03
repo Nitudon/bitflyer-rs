@@ -324,3 +324,14 @@ fn http_header(method: &str, path: &str, body: &str) -> Result<HeaderMap, Creden
     
     Ok(header)
 }
+
+#[macro_export]
+macro_rules! test_api {
+    ($val: expr) => {
+        let response = $val.await;
+        if response.is_err() {
+            println!("{:?}", response);
+        }
+        assert_eq!(response.is_ok(), true)
+    };
+}

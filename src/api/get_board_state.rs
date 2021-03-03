@@ -40,12 +40,12 @@ pub async fn get_board_state(product_code: ProductCode) -> Result<BoardStateInfo
 
 #[cfg(test)]
 mod tests {
+    use crate::test_api;
     use crate::api::get_board_state::get_board_state;
     use crate::api::ProductCode;
 
     #[tokio::test]
     async fn get_board_state_test() {
-        let response = get_board_state(ProductCode::BTC_JPY).await;
-        assert_eq!(response.is_ok(), true)
+        test_api!(get_board_state(ProductCode::BTC_JPY));
     }
 }

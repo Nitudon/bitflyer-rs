@@ -31,12 +31,12 @@ pub async fn get_health(product_code: ProductCode) -> Result<StateInfo, ApiRespo
 
 #[cfg(test)]
 mod tests {
+    use crate::test_api;
     use crate::api::get_health::get_health;
     use crate::api::ProductCode;
 
     #[tokio::test]
     async fn get_health_test() {
-        let health = get_health(ProductCode::BTC_JPY).await;
-        assert_eq!(health.is_ok(), true)
+        test_api!(get_health(ProductCode::BTC_JPY));
     }
 }
