@@ -10,6 +10,7 @@ pub mod get_balance;
 pub mod get_collateral;
 pub mod get_collateral_accounts;
 pub mod get_addresses;
+pub mod get_coinins;
 
 extern crate hyper;
 
@@ -210,6 +211,35 @@ impl FromStr for AddressType {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.trim() {
             "NORMAL" => Ok(AddressType::NORMAL),
+            _ => Err(())
+        }
+    }
+}
+
+#[derive(Deserialize, Debug)]
+pub enum CoinInStatusType {
+    Unknown,
+    PENDING,
+    COMPLETED
+}
+
+impl fmt::Display for CoinInStatusType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            CoinInStatusType::PENDING => write!(f, "PENDING"),
+            CoinInStatusType::COMPLETED => write!(f, "COMPLETED"),
+            _ => write!(f, "Unknown"),
+        }
+    }
+}
+
+impl FromStr for CoinInStatusType {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.trim() {
+            "PENDING" => Ok(CoinInStatusType::PENDING),
+            "COMPLETED" => Ok(CoinInStatusType::COMPLETED),
             _ => Err(())
         }
     }
