@@ -27,6 +27,7 @@ use hyper::http::HeaderValue;
 use hyper::Method;
 
 const ENDPOINT : &'static str = "https://api.bitflyer.com";
+pub const FROM_DATE_QUERY_KEY : &'static str = "from_date";
 pub const PRODUCT_CODE_QUERY_KEY : &'static str = "product_code";
 pub const MARKET_TYPE_QUERY_KEY : &'static str = "market_type";
 pub const COUNT_QUERY_KEY : &'static str = "count";

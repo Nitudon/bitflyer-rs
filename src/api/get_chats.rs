@@ -1,6 +1,7 @@
 use crate::api;
-use crate::api::ApiResponseError;
+use crate::api::{ApiResponseError, FROM_DATE_QUERY_KEY};
 use chrono::NaiveDateTime;
+use std::collections::HashMap;
 
 const PATH : &'static str = "/v1/getchats";
 
@@ -18,7 +19,9 @@ pub struct ChatInfo {
     pub date: NaiveDateTime,
 }
 
-pub async fn get_chats() -> Result<Vec<ChatInfo>, ApiResponseError> {
+pub async fn get_chats(from_date: &i64) -> Result<Vec<ChatInfo>, ApiResponseError> {
+    let mut params = HashMap::new();
+    params.insert(FROM_DATE_QUERY_KEY.to_string(), from_date.to_string());
     let response = api::get::<GetChatsResponse>(&PATH).await?;
 
     match response {
@@ -31,9 +34,12 @@ pub async fn get_chats() -> Result<Vec<ChatInfo>, ApiResponseError> {
 mod tests {
     use crate::test_api;
     use crate::api::get_chats::get_chats;
+    use chrono::{Utc, Duration};
 
     #[tokio::test]
     async fn get_chats_test() {
-        test_api!(get_chats());
+        let time = Utc::now() - Duration::minutes(3);
+        let timestamp = time.timestamp();
+        test_api!(get_chats(&timestamp));
     }
 }
