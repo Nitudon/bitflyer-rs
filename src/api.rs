@@ -12,6 +12,7 @@ pub mod get_collateral_accounts;
 pub mod get_addresses;
 pub mod get_coinins;
 pub mod get_coinouts;
+pub mod get_bank_accounts;
 
 extern crate hyper;
 
