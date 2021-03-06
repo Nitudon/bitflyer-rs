@@ -14,6 +14,7 @@ pub mod get_coinins;
 pub mod get_coinouts;
 pub mod get_bank_accounts;
 pub mod get_deposits;
+pub mod get_withdrawals;
 
 extern crate hyper;
 
@@ -34,6 +35,7 @@ pub const MARKET_TYPE_QUERY_KEY : &'static str = "market_type";
 pub const COUNT_QUERY_KEY : &'static str = "count";
 pub const BEFORE_QUERY_KEY : &'static str = "before";
 pub const AFTER_QUERY_KEY : &'static str = "after";
+pub const MESSAGE_ID_QUERY_KEY : &'static str = "message_id";
 
 #[derive(Deserialize, Debug)]
 pub enum HealthState {
