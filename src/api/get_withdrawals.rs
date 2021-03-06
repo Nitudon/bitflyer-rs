@@ -4,12 +4,7 @@ use std::collections::HashMap;
 
 const PATH : &'static str = "/v1/me/getwithdrawals";
 
-#[derive(Deserialize, Debug)]
-#[serde(untagged)]
-pub enum GetWithdrawalsResponse {
-    Error { errors: Vec<String> },
-    Response (Vec<WithdrawalsInfo>)
-}
+type GetWithdrawalsResponse = Vec<WithdrawalsInfo>;
 
 #[derive(Deserialize, Debug)]
 pub struct WithdrawalsInfo {
@@ -21,7 +16,7 @@ pub struct WithdrawalsInfo {
     pub event_date: String,
 }
 
-pub async fn get_withdrawals(before: u32, after: u32, count: i32, message_id: Option<String>) -> Result<Vec<WithdrawalsInfo>, ApiResponseError> {
+pub async fn get_withdrawals(before: u32, after: u32, count: i32, message_id: Option<String>) -> Result<GetWithdrawalsResponse, ApiResponseError> {
     let mut params = HashMap::new();
     params.insert(BEFORE_QUERY_KEY.to_string(), before.to_string());
     params.insert(AFTER_QUERY_KEY.to_string(), after.to_string());
@@ -29,12 +24,7 @@ pub async fn get_withdrawals(before: u32, after: u32, count: i32, message_id: Op
     if message_id.is_some() {
         params.insert(MESSAGE_ID_QUERY_KEY.to_string(), message_id.unwrap());
     }
-    let response = api::get::<GetWithdrawalsResponse>(&PATH).await?;
-
-    match response {
-        GetWithdrawalsResponse::Error { errors } => Err(ApiResponseError::API(errors)),
-        GetWithdrawalsResponse::Response (vec) => Ok(vec),
-    }
+    api::get::<GetWithdrawalsResponse>(&PATH).await
 }
 
 #[cfg(test)]

@@ -5,12 +5,7 @@ use std::collections::HashMap;
 
 const PATH : &'static str = "/v1/me/getcollateralaccounts";
 
-#[derive(Deserialize, Debug)]
-#[serde(untagged)]
-pub enum GetCollateralAccountsResponse {
-    Error { errors: Vec<String> },
-    Response(Vec<CollateralAccountInfo>)
-}
+type GetCollateralAccountsResponse = Vec<CollateralAccountInfo>;
 
 #[derive(Deserialize, Debug)]
 pub struct CollateralAccountInfo {
@@ -18,13 +13,8 @@ pub struct CollateralAccountInfo {
     pub amount: f32,
 }
 
-pub async fn get_collateral_accounts() -> Result<Vec<CollateralAccountInfo>, ApiResponseError> {
-    let response = api::get::<GetCollateralAccountsResponse>(&PATH).await?;
-
-    match response {
-        GetCollateralAccountsResponse::Error { errors } => Err(ApiResponseError::API(errors)),
-        GetCollateralAccountsResponse::Response (vec) => Ok(vec),
-    }
+pub async fn get_collateral_accounts() -> Result<GetCollateralAccountsResponse, ApiResponseError> {
+    api::get::<GetCollateralAccountsResponse>(&PATH).await
 }
 
 #[cfg(test)]

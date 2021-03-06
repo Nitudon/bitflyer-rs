@@ -4,12 +4,7 @@ use std::collections::HashMap;
 
 const PATH : &'static str = "/v1/me/getcoinins";
 
-#[derive(Deserialize, Debug)]
-#[serde(untagged)]
-pub enum GetCoinOutResponse {
-    Error { errors: Vec<String> },
-    Response (Vec<CoinOutInfo>)
-}
+type GetCoinOutsResponse = Vec<CoinOutInfo>;
 
 #[derive(Deserialize, Debug)]
 pub struct CoinOutInfo {
@@ -25,17 +20,12 @@ pub struct CoinOutInfo {
     pub event_date: String,
 }
 
-pub async fn get_coinouts(before: u32, after: u32, count: i32) -> Result<Vec<CoinOutInfo>, ApiResponseError> {
+pub async fn get_coinouts(before: u32, after: u32, count: i32) -> Result<GetCoinOutsResponse, ApiResponseError> {
     let mut params = HashMap::new();
     params.insert(BEFORE_QUERY_KEY.to_string(), before.to_string());
     params.insert(AFTER_QUERY_KEY.to_string(), after.to_string());
     params.insert(COUNT_QUERY_KEY.to_string(), count.to_string());
-    let response = api::get::<GetCoinOutResponse>(&PATH).await?;
-
-    match response {
-        GetCoinOutResponse::Error { errors } => Err(ApiResponseError::API(errors)),
-        GetCoinOutResponse::Response (vec) => Ok(vec),
-    }
+    api::get::<GetCoinOutsResponse>(&PATH).await
 }
 
 #[cfg(test)]

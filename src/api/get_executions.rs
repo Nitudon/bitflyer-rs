@@ -4,12 +4,7 @@ use std::collections::HashMap;
 
 const PATH : &'static str = "/v1/executions";
 
-#[derive(Deserialize, Debug)]
-#[serde(untagged)]
-pub enum GetExecutionsResponse {
-    Error { errors: Vec<String> },
-    Response (Vec<ExecutionInfo>)
-}
+type GetExecutionsResponse = Vec<ExecutionInfo>;
 
 #[derive(Deserialize, Debug)]
 pub struct ExecutionInfo {
@@ -22,16 +17,11 @@ pub struct ExecutionInfo {
     pub sell_child_order_acceptance_id: String,
 }
 
-pub async fn get_executions(product_code: ProductCode, count: i32) -> Result<Vec<ExecutionInfo>, ApiResponseError> {
+pub async fn get_executions(product_code: ProductCode, count: i32) -> Result<GetExecutionsResponse, ApiResponseError> {
     let mut params = HashMap::new();
     params.insert(PRODUCT_CODE_QUERY_KEY.to_string(), product_code.to_string());
     params.insert(COUNT_QUERY_KEY.to_string(), count.to_string());
-    let response = api::get::<GetExecutionsResponse>(&PATH).await?;
-
-    match response {
-        GetExecutionsResponse::Error { errors } => Err(ApiResponseError::API(errors)),
-        GetExecutionsResponse::Response (vec) => Ok(vec),
-    }
+    api::get::<GetExecutionsResponse>(&PATH).await
 }
 
 #[cfg(test)]

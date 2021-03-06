@@ -4,12 +4,7 @@ use std::collections::HashMap;
 
 const PATH : &'static str = "/v1/markets";
 
-#[derive(Deserialize, Debug)]
-#[serde(untagged)]
-pub enum GetMarketResponse {
-    Error { errors: Vec<String> },
-    Response(Vec<MarketInfo>)
-}
+type GetMarketsResponse = Vec<MarketInfo>;
 
 #[derive(Deserialize, Debug)]
 pub struct MarketInfo {
@@ -18,15 +13,10 @@ pub struct MarketInfo {
     pub alias: Option<String>,
 }
 
-pub async fn get_markets(market_type: MarketType) -> Result<Vec<MarketInfo>, ApiResponseError> {
+pub async fn get_markets(market_type: MarketType) -> Result<GetMarketsResponse, ApiResponseError> {
     let mut params = HashMap::new();
     params.insert(MARKET_TYPE_QUERY_KEY.to_string(), market_type.to_string());
-    let response = api::get_with_params::<GetMarketResponse>(&PATH, &params).await?;
-    
-    match response {
-        GetMarketResponse::Error { errors } => Err(ApiResponseError::API(errors)),
-        GetMarketResponse::Response(vec) => Ok(vec),
-    }
+    api::get_with_params::<GetMarketsResponse>(&PATH, &params).await
 }
 
 #[cfg(test)]

@@ -3,20 +3,10 @@ use crate::api::ApiResponseError;
 
 const PATH : &'static str = "/v1/me/getpermissions";
 
-#[derive(Deserialize, Debug)]
-#[serde(untagged)]
-pub enum GetPermissionsResponse {
-    Error { errors: Vec<String> },
-    Response(Vec<String>)
-}
+type GetPermissionsResponse = Vec<String>;
 
-pub async fn get_permissions() -> Result<Vec<String>, ApiResponseError> {
-    let response = api::get::<GetPermissionsResponse>(&PATH).await?;
-
-    match response {
-        GetPermissionsResponse::Error { errors } => Err(ApiResponseError::API(errors)),
-        GetPermissionsResponse::Response(vec) => Ok(vec),
-    }
+pub async fn get_permissions() -> Result<GetPermissionsResponse, ApiResponseError> {
+    api::get::<GetPermissionsResponse>(&PATH).await
 }
 
 #[cfg(test)]

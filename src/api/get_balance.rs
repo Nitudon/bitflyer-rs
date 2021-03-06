@@ -3,12 +3,7 @@ use crate::api::ApiResponseError;
 
 const PATH : &'static str = "/v1/me/getbalance";
 
-#[derive(Deserialize, Debug)]
-#[serde(untagged)]
-pub enum GetBalanceResponse {
-    Error { errors: Vec<String> },
-    Response(Vec<BalanceInfo>)
-}
+type GetBalanceResponse = Vec<BalanceInfo>;
 
 #[derive(Deserialize, Debug)]
 pub struct BalanceInfo {
@@ -17,13 +12,8 @@ pub struct BalanceInfo {
     pub available: f32,
 }
 
-pub async fn get_balance() -> Result<Vec<BalanceInfo>, ApiResponseError> {
-    let response = api::get::<GetBalanceResponse>(&PATH).await?;
-
-    match response {
-        GetBalanceResponse::Error { errors } => Err(ApiResponseError::API(errors)),
-        GetBalanceResponse::Response(vec) => Ok(vec),
-    }
+pub async fn get_balance() -> Result<GetBalanceResponse, ApiResponseError> {
+    api::get::<GetBalanceResponse>(&PATH).await
 }
 
 #[cfg(test)]

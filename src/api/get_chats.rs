@@ -5,12 +5,7 @@ use std::collections::HashMap;
 
 const PATH : &'static str = "/v1/getchats";
 
-#[derive(Deserialize, Debug)]
-#[serde(untagged)]
-pub enum GetChatsResponse {
-    Error { errors: Vec<String> },
-    Response(Vec<ChatInfo>)
-}
+type GetChatsResponse = Vec<ChatInfo>;
 
 #[derive(Deserialize, Debug)]
 pub struct ChatInfo {
@@ -19,15 +14,10 @@ pub struct ChatInfo {
     pub date: NaiveDateTime,
 }
 
-pub async fn get_chats(from_date: &i64) -> Result<Vec<ChatInfo>, ApiResponseError> {
+pub async fn get_chats(from_date: &i64) -> Result<GetChatsResponse, ApiResponseError> {
     let mut params = HashMap::new();
     params.insert(FROM_DATE_QUERY_KEY.to_string(), from_date.to_string());
-    let response = api::get::<GetChatsResponse>(&PATH).await?;
-
-    match response {
-        GetChatsResponse::Error { errors } => Err(ApiResponseError::API(errors)),
-        GetChatsResponse::Response(vec) => Ok(vec),
-    }
+    api::get::<GetChatsResponse>(&PATH).await
 }
 
 #[cfg(test)]

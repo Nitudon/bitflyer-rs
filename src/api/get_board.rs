@@ -4,12 +4,7 @@ use std::collections::HashMap;
 
 const PATH : &'static str = "/v1/board";
 
-#[derive(Deserialize, Debug)]
-#[serde(untagged)]
-pub enum GetBoardResponse {
-    Error { errors: Vec<String> },
-    Response { mid_price: f32, bids: Vec<BoardBid>, asks: Vec<BoardAsk> }
-}
+type GetBoardResponse = BoardInfo;
 
 #[derive(Deserialize, Debug)]
 pub struct BoardInfo {
@@ -30,19 +25,10 @@ pub struct BoardAsk {
     pub size: f32,
 }
 
-pub async fn get_board(product_code: ProductCode) -> Result<BoardInfo, ApiResponseError> {
+pub async fn get_board(product_code: ProductCode) -> Result<GetBoardResponse, ApiResponseError> {
     let mut params = HashMap::new();
     params.insert(PRODUCT_CODE_QUERY_KEY.to_string(), product_code.to_string());
-    let response = api::get::<GetBoardResponse>(&PATH).await?;
-
-    match response {
-        GetBoardResponse::Error { errors } => Err(ApiResponseError::API(errors)),
-        GetBoardResponse::Response { mid_price, bids, asks} => Ok(BoardInfo{
-            mid_price,
-            bids,
-            asks
-        }),
-    }
+    api::get::<GetBoardResponse>(&PATH).await
 }
 
 #[cfg(test)]

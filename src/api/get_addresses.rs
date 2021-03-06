@@ -5,12 +5,7 @@ use std::collections::HashMap;
 
 const PATH : &'static str = "/v1/me/getaddresses";
 
-#[derive(Deserialize, Debug)]
-#[serde(untagged)]
-pub enum GetAddressesResponse {
-    Error { errors: Vec<String> },
-    Response(Vec<AddressInfo>)
-}
+type GetAddressesResponse = Vec<AddressInfo>;
 
 #[derive(Deserialize, Debug)]
 pub struct AddressInfo {
@@ -19,13 +14,8 @@ pub struct AddressInfo {
     pub address: String,
 }
 
-pub async fn get_addresses() -> Result<Vec<AddressInfo>, ApiResponseError> {
-    let response = api::get::<GetAddressesResponse>(&PATH).await?;
-
-    match response {
-        GetAddressesResponse::Error { errors } => Err(ApiResponseError::API(errors)),
-        GetAddressesResponse::Response (vec) => Ok(vec),
-    }
+pub async fn get_addresses() -> Result<GetAddressesResponse, ApiResponseError> {
+    api::get::<GetAddressesResponse>(&PATH).await
 }
 
 #[cfg(test)]

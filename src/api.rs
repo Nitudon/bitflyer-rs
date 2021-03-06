@@ -15,10 +15,11 @@ pub mod get_coinouts;
 pub mod get_bank_accounts;
 pub mod get_deposits;
 pub mod get_withdrawals;
+pub mod send_child_order;
 
 extern crate hyper;
 
-use reqwest::Url;
+use reqwest::{Url, Response, StatusCode};
 use hyper::header::{HeaderMap, CONTENT_TYPE, HeaderName};
 use std::str::FromStr;
 use std::collections::HashMap;
@@ -255,12 +256,19 @@ impl FromStr for OrderStatusType {
 pub enum ApiResponseError {
     Reqwest(reqwest::Error),
     UrlParse(url::ParseError),
-    API(Vec<String>),
+    API(StatusCode, Vec<String>),
+    ResponseParse(Vec<String>)
 }
 
 impl From<Vec<String>> for ApiResponseError {
     fn from(e: Vec<String>) -> ApiResponseError {
-        ApiResponseError::API(e)
+        ApiResponseError::ResponseParse(e)
+    }
+}
+
+impl From<(StatusCode, Vec<String>)> for ApiResponseError {
+    fn from(e: (StatusCode, Vec<String>)) -> ApiResponseError {
+        ApiResponseError::API(e.0, e.1)
     }
 }
 
@@ -280,9 +288,15 @@ pub async fn get_with_params<T: serde::de::DeserializeOwned>
 (path: &str, query_map: &HashMap<String, String>) -> Result<T, ApiResponseError> {
     let header = http_header(&Method::GET.to_string(), path, "").unwrap();
     let url = http_url_with_params(path, query_map)?;
-    let response = get_impl(url, header).await;
-    match response {
-        Ok(t) => Ok(t),
+    let get = get_impl(url, header).await;
+    match get {
+        Ok(t) => {
+            if t.status().is_success() {
+                Ok(t.json().await?)
+            } else {
+                Err(ApiResponseError::from((t.status(), t.json().await?)))
+            }
+        },
         Err(e) => Err(ApiResponseError::from(e))
     }
 }
@@ -291,21 +305,24 @@ pub async fn get<T: serde::de::DeserializeOwned>
 (path: &str) -> Result<T, ApiResponseError> {
     let header = http_header(&Method::GET.to_string(), path, "").unwrap();
     let url = http_url(path)?;
-    let response = get_impl(url, header).await;
-    match response {
-        Ok(t) => Ok(t),
+    let get = get_impl(url, header).await;
+    match get {
+        Ok(t) => {
+            if t.status().is_success() {
+                Ok(t.json().await?)
+            } else {
+                Err(ApiResponseError::from((t.status(), t.json().await?)))
+            }
+        },
         Err(e) => Err(ApiResponseError::from(e))
     }
 }
 
-async fn get_impl<T: serde::de::DeserializeOwned>
-(url: Url, header: HeaderMap) -> Result<T, reqwest::Error> {
+async fn get_impl(url: Url, header: HeaderMap) -> Result<Response, reqwest::Error> {
     reqwest::Client::new()
         .get(url)
         .headers(header)
         .send()
-        .await?
-        .json()
         .await
 }
 
@@ -314,22 +331,26 @@ pub async fn post<T: serde::Serialize, U: serde::de::DeserializeOwned>
     let url = http_url(path)?;
     let body_json = serde_json::to_string(body).unwrap();
     let header = http_header(&Method::POST.to_string(), path, &body_json).unwrap();
-    let response = post_impl(url, header, body).await;
-    match response {
-        Ok(t) => Ok(t),
-        Err(e) => Err(ApiResponseError::from(e))
+    let post = post_impl(url, header, body).await;
+    match post {
+        Ok(t) => {
+            if t.status().is_success() {
+                Ok(t.json().await?)
+            } else {
+                Err(ApiResponseError::from((t.status(), t.json().await?)))
+            }
+        },
+        Err(e) => { Err(ApiResponseError::from(e)) }
     }
 }
 
-async fn post_impl<T: serde::Serialize, U: serde::de::DeserializeOwned>
-(url: Url, header: HeaderMap, body: &T) -> Result<U, reqwest::Error> {
+async fn post_impl<T: serde::Serialize>
+(url: Url, header: HeaderMap, body: &T) -> Result<Response, reqwest::Error> {
     reqwest::Client::new()
         .post(url)
         .headers(header)
         .json(body)
         .send()
-        .await?
-        .json()
         .await
 }
 
