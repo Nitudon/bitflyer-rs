@@ -1,5 +1,5 @@
 use crate::api;
-use crate::api::{ApiResponseError, ProductCode, BEFORE_QUERY_KEY, AFTER_QUERY_KEY, COUNT_QUERY_KEY, CurrencyCode, CoinInStatusType};
+use crate::api::{ApiResponseError, ProductCode, BEFORE_QUERY_KEY, AFTER_QUERY_KEY, COUNT_QUERY_KEY, CurrencyCode, OrderStatusType};
 use std::collections::HashMap;
 
 const PATH : &'static str = "/v1/me/getcoinins";
@@ -19,7 +19,7 @@ pub struct CoinInInfo {
     pub amount: f32,
     pub address: String,
     pub tx_hash: String,
-    pub status: CoinInStatusType,
+    pub status: OrderStatusType,
     pub event_date: String,
 }
 

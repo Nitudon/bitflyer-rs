@@ -13,6 +13,7 @@ pub mod get_addresses;
 pub mod get_coinins;
 pub mod get_coinouts;
 pub mod get_bank_accounts;
+pub mod get_deposits;
 
 extern crate hyper;
 
@@ -220,29 +221,29 @@ impl FromStr for AddressType {
 }
 
 #[derive(Deserialize, Debug)]
-pub enum CoinInStatusType {
+pub enum OrderStatusType {
     Unknown,
     PENDING,
     COMPLETED
 }
 
-impl fmt::Display for CoinInStatusType {
+impl fmt::Display for OrderStatusType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            CoinInStatusType::PENDING => write!(f, "PENDING"),
-            CoinInStatusType::COMPLETED => write!(f, "COMPLETED"),
+            OrderStatusType::PENDING => write!(f, "PENDING"),
+            OrderStatusType::COMPLETED => write!(f, "COMPLETED"),
             _ => write!(f, "Unknown"),
         }
     }
 }
 
-impl FromStr for CoinInStatusType {
+impl FromStr for OrderStatusType {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.trim() {
-            "PENDING" => Ok(CoinInStatusType::PENDING),
-            "COMPLETED" => Ok(CoinInStatusType::COMPLETED),
+            "PENDING" => Ok(OrderStatusType::PENDING),
+            "COMPLETED" => Ok(OrderStatusType::COMPLETED),
             _ => Err(())
         }
     }
