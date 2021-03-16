@@ -16,6 +16,7 @@ pub mod get_bank_accounts;
 pub mod get_deposits;
 pub mod get_withdrawals;
 pub mod send_child_order;
+pub mod cancel_child_order;
 
 extern crate hyper;
 
@@ -384,7 +385,20 @@ async fn get_impl(url: Url, header: HeaderMap) -> Result<Response, reqwest::Erro
         .await
 }
 
-pub async fn post<T: serde::Serialize, U: serde::de::DeserializeOwned>
+pub async fn post<T: serde::Serialize>
+(path: &str, body: &T) -> Result<StatusCode, ApiResponseError> {
+    let url = http_url(path)?;
+    let body_json = serde_json::to_string(body).unwrap();
+    let header = http_header(&Method::POST.to_string(), path, &body_json).unwrap();
+    let post = post_impl(url, header, body).await;
+    
+    match post {
+        Ok(t) => { Ok(t.status()) },
+        Err(e) => { Err(ApiResponseError::from(e)) }
+    }
+}
+
+pub async fn post_with_response<T: serde::Serialize, U: serde::de::DeserializeOwned>
 (path: &str, body: &T) -> Result<U, ApiResponseError> {
     let url = http_url(path)?;
     let body_json = serde_json::to_string(body).unwrap();

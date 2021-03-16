@@ -31,5 +31,5 @@ pub async fn send_child_order(product_code: ProductCode, child_order_type: Child
         size,
         minutes_to_expire
     };
-    api::post::<SendChildOrderRequest, SendChildOrderResponse>(&PATH, &request).await
+    api::post_with_response::<SendChildOrderRequest, SendChildOrderResponse>(&PATH, &request).await
 }
