@@ -38,7 +38,7 @@ pub const BEFORE_QUERY_KEY : &'static str = "before";
 pub const AFTER_QUERY_KEY : &'static str = "after";
 pub const MESSAGE_ID_QUERY_KEY : &'static str = "message_id";
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum HealthState {
     Unknown,
     NORMAL,
@@ -65,7 +65,7 @@ impl FromStr for HealthState {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum BoardState {
     Unknown,
     RUNNING,
@@ -94,7 +94,7 @@ impl FromStr for BoardState {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum ProductCode {
     Unknown,
     BTC_JPY,
@@ -132,7 +132,7 @@ impl FromStr for ProductCode {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum CurrencyCode {
     Unknown,
     JPY,
@@ -167,7 +167,7 @@ impl FromStr for CurrencyCode {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum MarketType {
     Spot,
     FX,
@@ -197,7 +197,7 @@ impl FromStr for MarketType {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum AddressType {
     Unknown,
     NORMAL,
@@ -223,7 +223,7 @@ impl FromStr for AddressType {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum OrderStatusType {
     Unknown,
     PENDING,
@@ -247,6 +247,64 @@ impl FromStr for OrderStatusType {
         match s.trim() {
             "PENDING" => Ok(OrderStatusType::PENDING),
             "COMPLETED" => Ok(OrderStatusType::COMPLETED),
+            _ => Err(())
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum ChildOrderType {
+    Unknown,
+    LIMIT,
+    MARKET
+}
+
+impl fmt::Display for ChildOrderType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ChildOrderType::LIMIT => write!(f, "LIMIT"),
+            ChildOrderType::MARKET => write!(f, "MARKET"),
+            _ => write!(f, "Unknown"),
+        }
+    }
+}
+
+impl FromStr for ChildOrderType {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.trim() {
+            "LIMIT" => Ok(ChildOrderType::LIMIT),
+            "MARKET" => Ok(ChildOrderType::MARKET),
+            _ => Err(())
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum OrderSideType {
+    Unknown,
+    BUY,
+    SELL
+}
+
+impl fmt::Display for OrderSideType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            OrderSideType::BUY => write!(f, "BUY"),
+            OrderSideType::SELL => write!(f, "SELL"),
+            _ => write!(f, "Unknown"),
+        }
+    }
+}
+
+impl FromStr for OrderSideType {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.trim() {
+            "BUY" => Ok(OrderSideType::BUY),
+            "SELL" => Ok(OrderSideType::SELL),
             _ => Err(())
         }
     }
