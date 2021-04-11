@@ -17,6 +17,7 @@ pub mod get_deposits;
 pub mod get_withdrawals;
 pub mod send_child_order;
 pub mod cancel_child_order;
+pub mod cancel_child_order_all;
 
 extern crate hyper;
 

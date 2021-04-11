@@ -3,9 +3,9 @@ use crate::api::{ApiResponseError, ProductCode, BEFORE_QUERY_KEY, AFTER_QUERY_KE
 use std::collections::HashMap;
 use hyper::StatusCode;
 
-const PATH : &'static str = "/v1/me/sendchildorder";
+const PATH : &'static str = "/v1/me/cancelchildorder";
 
-type SendChildOrderRequest = CancelChildOrderInfo;
+type CancelChildOrderRequest = CancelChildOrderInfo;
 
 #[derive(Serialize, Debug)]
 pub struct CancelChildOrderInfo {
@@ -18,5 +18,5 @@ pub async fn cancel_child_order(product_code: ProductCode, child_order_id: Strin
         product_code,
         child_order_id,
     };
-    api::post::<SendChildOrderRequest>(&PATH, &request).await
+    api::post::<CancelChildOrderRequest>(&PATH, &request).await
 }
