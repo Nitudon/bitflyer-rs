@@ -18,6 +18,7 @@ pub mod get_withdrawals;
 pub mod send_child_order;
 pub mod cancel_child_order;
 pub mod cancel_child_order_all;
+pub mod get_child_orders;
 
 extern crate hyper;
 
@@ -278,6 +279,44 @@ impl FromStr for ChildOrderType {
         match s.trim() {
             "LIMIT" => Ok(ChildOrderType::LIMIT),
             "MARKET" => Ok(ChildOrderType::MARKET),
+            _ => Err(())
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum ChildOrderState {
+    Unknown,
+    ACTIVE,
+    COMPLETED,
+    CANCELED,
+    EXPIRED,
+    REJECTED,
+}
+
+impl fmt::Display for ChildOrderState {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ChildOrderState::ACTIVE => write!(f, "ACTIVE"),
+            ChildOrderState::COMPLETED => write!(f, "COMPLETED"),
+            ChildOrderState::CANCELED => write!(f, "CANCELED"),
+            ChildOrderState::EXPIRED => write!(f, "EXPIRED"),
+            ChildOrderState::REJECTED => write!(f, "REJECTED"),
+            _ => write!(f, "Unknown"),
+        }
+    }
+}
+
+impl FromStr for ChildOrderState {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.trim() {
+            "ACTIVE" => Ok(ChildOrderState::ACTIVE),
+            "COMPLETED" => Ok(ChildOrderState::COMPLETED),
+            "CANCELED" => Ok(ChildOrderState::CANCELED),
+            "EXPIRED" => Ok(ChildOrderState::EXPIRED),
+            "REJECTED" => Ok(ChildOrderState::REJECTED),
             _ => Err(())
         }
     }
