@@ -21,10 +21,10 @@ pub struct ChildOrderInfo {
     pub expire_date: NaiveDateTime,
     pub child_order_date: NaiveDateTime,
     pub child_order_acceptance_id: String,
-    pub outstanding_size: usize,
-    pub cancel_size: usize,
-    pub executed_size: usize,
-    pub total_commission: usize
+    pub outstanding_size: f32,
+    pub cancel_size: f32,
+    pub executed_size: f32,
+    pub total_commission: f32
 }
 
 pub async fn get_child_orders(before: u32, after: u32, count: i32) -> Result<GetChildOrdersResponse, ApiResponseError> {

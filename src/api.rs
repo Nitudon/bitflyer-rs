@@ -19,6 +19,7 @@ pub mod send_child_order;
 pub mod cancel_child_order;
 pub mod cancel_child_order_all;
 pub mod get_child_orders;
+pub mod get_trading_commission;
 
 extern crate hyper;
 
@@ -354,6 +355,7 @@ impl FromStr for OrderSideType {
 #[derive(Debug)]
 pub enum ApiResponseError {
     Reqwest(reqwest::Error),
+    Credential(CredentialError),
     UrlParse(url::ParseError),
     API(StatusCode, Vec<String>),
     ResponseParse(Vec<String>)
@@ -385,9 +387,12 @@ impl From<url::ParseError> for ApiResponseError {
 
 pub async fn get_with_params<T: serde::de::DeserializeOwned>
 (path: &str, query_map: &HashMap<String, String>) -> Result<T, ApiResponseError> {
-    let header = http_header(&Method::GET.to_string(), path, "").unwrap();
+    let header = http_header(&Method::GET.to_string(), path, "");
+    if header.is_err() {
+        return Err(ApiResponseError::Credential(header.err().unwrap()));
+    };
     let url = http_url_with_params(path, query_map)?;
-    let get = get_impl(url, header).await;
+    let get = get_impl(url, header.unwrap()).await;
     match get {
         Ok(t) => {
             if t.status().is_success() {
@@ -402,9 +407,12 @@ pub async fn get_with_params<T: serde::de::DeserializeOwned>
 
 pub async fn get<T: serde::de::DeserializeOwned>
 (path: &str) -> Result<T, ApiResponseError> {
-    let header = http_header(&Method::GET.to_string(), path, "").unwrap();
+    let header = http_header(&Method::GET.to_string(), path, "");
+    if header.is_err() {
+        return Err(ApiResponseError::Credential(header.err().unwrap()));
+    };
     let url = http_url(path)?;
-    let get = get_impl(url, header).await;
+    let get = get_impl(url, header.unwrap()).await;
     match get {
         Ok(t) => {
             if t.status().is_success() {
